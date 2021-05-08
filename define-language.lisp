@@ -46,7 +46,7 @@ and then print terms like:
        (defmethod ,parse-fn ((term cons))
          (apply #',parse-clause term))
        (defmacro ,define-singleton ((var class) &body body)
-         (when (eq head 'cons)
+         (when (eq class 'cons)
            (error "Attempt to override behavior of ~a which processes ~a"
                   ',define-singleton
                   ',define-clause))
