@@ -1,0 +1,18 @@
+#+title: define-language
+#+subtitle: A macro for defining and processing s-expression languages using Common Lisp
+
+* Sample usage:
+   #+begin_src lisp
+     (define-language process-expr define-expr define-expr-clause)
+
+     (define-expr (sym symbol)
+       (print sym))
+
+     (define-expr-clause neato (&optional thing)
+       (format t "~&neato! ~a~%" thing)
+       (parse-expr thing))
+
+     ;; (parse-expr 'foo) ; prints and returns `FOO'
+
+     ;; (parse-expr '(neato foo)) ; prints `neato! FOO', then prints and returns `FOO'
+   #+end_src
