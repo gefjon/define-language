@@ -4,7 +4,8 @@
   (:export #:define-language))
 (in-package #:define-language/define-language)
 
-(defmacro define-language (parse-fn define-singleton define-clause)
+(defmacro define-language ((parse-fn define-singleton define-clause)
+                           &optional fallthrough-arglist &body fallthrough-transform)
   "Define a language processor function PARSE-FUNCTION, with macros to define its behaviors DEFINE-SINGLETON \
 and DEFINE-CLAUSE.
 
@@ -24,8 +25,12 @@ bound to the `rest' of that list as if by `destructuring-bind'.
 HEAD should usually be a symbol, but may be any object suitable for a CLOS `eql'-specializer. It will not be \
 evaluated.
 
+If a FALLTHROUGH-ARGLIST and a FALLTHROUGH-TRANSFORM are supplied, they will be used to transform lists which \
+do not match any specialized clause. FALLTHROUGH-ARGLIST must be of the form (HEAD `&rest' TAIL), where HEAD \
+and TAIL are symbols to be bound and `&rest' is the literal symbol `&rest'.
+
 For example, you can define a language `print-expr' with:
-  (define-language print-expr define-expr define-expr-clause)
+  (define-language (print-expr define-expr define-expr-clause))
 define its contents with:
   (define-expr (sym symbol)
     (print sym))
@@ -42,6 +47,8 @@ and then print terms like:
          (tail (gensym "TAIL-")))
     `(progn
        (defgeneric ,parse-clause (head &rest tail))
+       ,@(when (and fallthrough-arglist fallthrough-transform)
+           `((defmethod ,parse-clause ,fallthrough-arglist ,@fallthrough-transform)))
        (defgeneric ,parse-fn (term))
        (defmethod ,parse-fn ((term cons))
          (apply #',parse-clause term))

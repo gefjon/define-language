@@ -3,7 +3,7 @@
 
 * Sample usage:
    #+begin_src lisp
-     (define-language process-expr define-expr define-expr-clause)
+     (define-language (process-expr define-expr define-expr-clause))
 
      (define-expr (sym symbol)
        (print sym))
