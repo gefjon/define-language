@@ -26,8 +26,7 @@ HEAD should usually be a symbol, but may be any object suitable for a CLOS `eql'
 evaluated.
 
 If a FALLTHROUGH-ARGLIST and a FALLTHROUGH-TRANSFORM are supplied, they will be used to transform lists which \
-do not match any specialized clause. FALLTHROUGH-ARGLIST must be of the form (HEAD `&rest' TAIL), where HEAD \
-and TAIL are symbols to be bound and `&rest' is the literal symbol `&rest'.
+do not match any specialized clause. FALLTHROUGH-ARGLIST may be any template suitable for `destructuring-bind'.
 
 For example, you can define a language `print-expr' with:
   (define-language (print-expr define-expr define-expr-clause))
@@ -48,7 +47,9 @@ and then print terms like:
     `(progn
        (defgeneric ,parse-clause (head &rest tail))
        ,@(when (and fallthrough-arglist fallthrough-transform)
-           `((defmethod ,parse-clause ,fallthrough-arglist ,@fallthrough-transform)))
+           `((defmethod ,parse-clause (head &rest tail)
+               (destructuring-bind ,fallthrough-arglist (cons head tail)
+                 ,@fallthrough-transform))))
        (defgeneric ,parse-fn (term))
        (defmethod ,parse-fn ((term cons))
          (apply #',parse-clause term))
